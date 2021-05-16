@@ -22,6 +22,7 @@ def image_name():
     
 name_id = image_name()
 
+
 @app.route('/', methods=['GET', 'POST'])
 def home():
     model = load_model('models\MobileNetV2_3.h5')
@@ -37,9 +38,10 @@ def home():
         filepath = os.path.join('tmp/uploaded/', filename)
         image_file.save(filepath)
         image = imread(filepath)
+        image = face_extractor(image)
         image = image / 255
         #print(image.shape)
-        image = cv2.resize(image, (160, 160)) # resize will not work
+        image = cv2.resize(image, (160, 160)) 
         #print(image.shape)
         #prediction = 0
         prediction = model.predict(image.reshape(-1, 160, 160, 3))
@@ -47,10 +49,11 @@ def home():
         flag = 0
         non_celeb = 0
         for k in range(0, 105):
-            if(prediction[0][k] > 0.6):
+            if(prediction[0][k] > 0.95):
                 i, j = 0, k
                 flag = 1
-            elif(prediction[0][k] > 0.3):
+                break
+            elif(prediction[0][k] > 0.5):
                 non_celeb = 1
         if(flag == 0):
                 if(non_celeb == 1):
@@ -61,7 +64,25 @@ def home():
         predicted_class = get_name(j)[30:-1]
         print(prediction)
         return render_template('index.html', prediction = predicted_class)
-        
+
+def face_extractor(img):
+    # Function detects faces and returns the cropped face
+    # If no face detected, it returns the input image
+    
+    face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
+    faces = face_cascade.detectMultiScale(img, 1.3, 5)
+    
+    if faces is ():
+        return img
+    
+    # Crop all faces found
+    for (x,y,w,h) in faces:
+        cv2.rectangle(img,(x,y),(x+w,y+h),(0,255,255),2)
+        cropped_face = img[y:y+h, x:x+w]
+
+    return cropped_face
+
+
 def get_name(j):
     return name_id[j]
 if __name__ == '__main__':
