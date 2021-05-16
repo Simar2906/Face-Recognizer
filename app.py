@@ -15,7 +15,7 @@ app.config['SECRET_KEY'] = "supertopsecretprivatekey"
 
 def image_name():
     class_names = glob("105_classes_pins_dataset/*/") # Reads all the folders in which images are present
-    #class_names = sorted(class_names) # Sorting them
+    class_names = sorted(class_names) # Sorting them
     name_id_map = dict(zip(range(len(class_names)),class_names))
     #print(name_id_map)
     return name_id_map
@@ -44,14 +44,22 @@ def home():
         #prediction = 0
         prediction = model.predict(image.reshape(-1, 160, 160, 3))
         #i,j = np.unravel_index(prediction.argmax(), prediction.shape)
-        
+        flag = 0
+        non_celeb = 0
         for k in range(0, 105):
-            if(prediction[0][k] > 0.4):
+            if(prediction[0][k] > 0.6):
                 i, j = 0, k
+                flag = 1
+            elif(prediction[0][k] > 0.3):
+                non_celeb = 1
+        if(flag == 0):
+                if(non_celeb == 1):
+                    return render_template('index.html', prediction = 'Non Celebrity Face Detected')
+                return render_template('index.html', prediction = 'No Face Found')
         prediction[i,j]
         print(j)
         predicted_class = get_name(j)[30:-1]
-        print("\n Model Predicted: {}".format(prediction))
+        print(prediction)
         return render_template('index.html', prediction = predicted_class)
         
 def get_name(j):
