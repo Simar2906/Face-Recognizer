@@ -49,7 +49,7 @@ def home():
         flag = 0
         non_celeb = 0
         for k in range(0, 105):
-            if(prediction[0][k] > 0.95):
+            if(prediction[0][k] > 0.90):
                 i, j = 0, k
                 flag = 1
                 break
