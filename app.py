@@ -50,7 +50,7 @@ def home():
                 i, j = 0, k
         prediction[i,j]
         print(j)
-        predicted_class = get_name(j)
+        predicted_class = get_name(j)[30:-1]
         print("\n Model Predicted: {}".format(prediction))
         return render_template('index.html', prediction = predicted_class)
         
